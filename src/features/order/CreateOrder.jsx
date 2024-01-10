@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import { Form, redirect, useNavigation, useActionData } from 'react-router-dom'
-import { createOrder } from '../../services/apiRestaurant'
+import { useState } from 'react';
+import { Form, redirect, useNavigation, useActionData } from 'react-router-dom';
+import { createOrder } from '../../services/apiRestaurant';
+import Button from '../../ui/Button';
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
   /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
-    str
-  )
+    str,
+  );
 
 const fakeCart = [
   {
@@ -30,30 +31,30 @@ const fakeCart = [
     unitPrice: 15,
     totalPrice: 15,
   },
-]
+];
 
 function CreateOrder() {
   // const [withPriority, setWithPriority] = useState(false);
-  const navigation = useNavigation()
-  const isSubmitting = navigation.state === 'submitting'
-  const formErrors = useActionData()
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === 'submitting';
+  const formErrors = useActionData();
 
-  const cart = fakeCart
+  const cart = fakeCart;
 
   return (
     <div>
       <h2>Ready to order? Let&apos;s go!</h2>
 
-      <Form method='POST'>
+      <Form method="POST">
         <div>
           <label>First Name</label>
-          <input type='text' name='customer' required />
+          <input type="text" name="customer" required className="input" />
         </div>
 
         <div>
           <label>Phone number</label>
           <div>
-            <input type='tel' name='phone' required />
+            <input type="tel" name="phone" required className="input" />
           </div>
           {formErrors?.phone && <p>{formErrors.phone}</p>}
         </div>
@@ -61,53 +62,54 @@ function CreateOrder() {
         <div>
           <label>Address</label>
           <div>
-            <input type='text' name='address' required />
+            <input type="text" name="address" required className="input" />
           </div>
         </div>
 
         <div>
           <input
-            type='checkbox'
-            name='priority'
-            id='priority'
+            className="h-6 w-6 accent-yellow-400 focus:ring focus:ring-yellow-400 focus:ring-offset-2"
+            type="checkbox"
+            name="priority"
+            id="priority"
             // value={withPriority}
             // onChange={(e) => setWithPriority(e.target.checked)}
           />
-          <label htmlFor='priority'>Want to yo give your order priority?</label>
+          <label htmlFor="priority">Want to yo give your order priority?</label>
         </div>
 
         <div>
-          <input type='hidden' name='cart' value={JSON.stringify(cart)} />
-          <button disabled={isSubmitting}>
+          <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+          <Button disabled={isSubmitting}>
             {isSubmitting ? 'Placing order...' : 'Order now'}
-          </button>
+          </Button>
         </div>
       </Form>
     </div>
-  )
+  );
 }
 
 export async function action({ request }) {
-  const formData = await request.formData()
-  const data = Object.fromEntries(formData)
+  const formData = await request.formData();
+  const data = Object.fromEntries(formData);
 
   const order = {
     ...data,
     cart: JSON.parse(data.cart),
     priority: data.priority === 'on',
-  }
+  };
 
-  const errors = {}
+  const errors = {};
 
   if (!isValidPhone(data.phone))
-    errors.phone = 'Please provide a valid phone number, we might need it.'
+    errors.phone = 'Please provide a valid phone number, we might need it.';
 
-  if (Object.keys(errors).length > 0) return errors
+  if (Object.keys(errors).length > 0) return errors;
 
   // If everything is okay, then the order will be placed.
-  const newOrder = await createOrder(order)
+  const newOrder = await createOrder(order);
 
-  return redirect(`/order/${newOrder.id}`)
+  return redirect(`/order/${newOrder.id}`);
 }
 
-export default CreateOrder
+export default CreateOrder;
